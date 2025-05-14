@@ -1,19 +1,2 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Posts on Clou&#39;s Blog</title>
-    <link>http://localhost:1313/mon-blog/post/</link>
-    <description>Recent content in Posts on Clou&#39;s Blog</description>
-    <generator>Hugo</generator>
-    <language>en-us</language>
-    <lastBuildDate>Wed, 14 May 2025 23:09:55 +0200</lastBuildDate>
-    <atom:link href="http://localhost:1313/mon-blog/post/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>First publication</title>
-      <link>http://localhost:1313/mon-blog/post/first_publication/</link>
-      <pubDate>Wed, 14 May 2025 23:09:55 +0200</pubDate>
-      <guid>http://localhost:1313/mon-blog/post/first_publication/</guid>
-      <description>&lt;h1 id=&#34;first-post-&#34;&gt;First post !&lt;/h1&gt;&#xA;&lt;p&gt;Hi everyone, this is the first post of the blog :)&lt;/p&gt;</description>
-    </item>
-  </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Clou's Blog</title><link>https://Clotildelevou.github.io/mon-blog/post/</link><description>Recent content in Posts on Clou's Blog</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Wed, 14 May 2025 23:09:55 +0200</lastBuildDate><atom:link href="https://Clotildelevou.github.io/mon-blog/post/index.xml" rel="self" type="application/rss+xml"/><item><title>First publication</title><link>https://Clotildelevou.github.io/mon-blog/post/first_publication/</link><pubDate>Wed, 14 May 2025 23:09:55 +0200</pubDate><guid>https://Clotildelevou.github.io/mon-blog/post/first_publication/</guid><description>&lt;h1 id="first-post-">First post !&lt;/h1>
+&lt;p>Hi everyone, this is the first post of the blog :)&lt;/p></description></item></channel></rss>
