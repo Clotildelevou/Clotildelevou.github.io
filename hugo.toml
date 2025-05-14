@@ -1,0 +1,32 @@
+baseURL = "https://Clotildelevou.github.io/mon-blog/"
+languageCode = "en-us"
+title = "Clou's Blog"
+theme = "beautifulhugo"
+
+
+[params]
+  subtitle = "My personal tech blog"
+  mainSections = ["post"]
+  logo = "img/avatar.png"
+  favicon = "img/favicon.ico"
+  rss = true
+
+[author]
+  name = "Clotilde Levesque"
+  github = "Clotildelevou"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+# Main menu
+[[menu.main]]
+  name = "Home"
+  url = "/"
+  weight = 1
+
+[[menu.main]]
+  name = "About"
+  url = "/about/"
+  weight = 2
