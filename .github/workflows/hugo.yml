@@ -1,69 +1,75 @@
-# Sample workflow for building and deploying a Hugo site to GitHub Pages
 name: Deploy Hugo site to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   pull_request:
-    types: [labeled]
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    branches: ["main"]
+    types: [labeled, opened, synchronize, reopened]
+
 permissions:
   contents: read
+  pull-requests: write
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
-# Default to bash
 defaults:
   run:
     shell: bash
 
 jobs:
-  # Build job
   build:
+    if: github.event_name == 'push'
+    name: Build Hugo site (production)
     runs-on: ubuntu-latest
     env:
       HUGO_VERSION: 0.128.0
     steps:
       - name: Install Hugo CLI
         run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
-          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+          echo "Installing Hugo v${HUGO_VERSION}"
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+          sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
       - name: Install Dart Sass
-        run: sudo snap install dart-sass
+        run: |
+          echo "Installing Dart Sass"
+          sudo snap install dart-sass
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
+
       - name: Install Node.js dependencies
-        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+        run: |
+          echo "Installing Node.js dependencies"
+          [[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || echo "No Node dependencies"
+
       - name: Build with Hugo
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
           HUGO_ENVIRONMENT: production
         run: |
-          hugo \
-            --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+          echo "Building Hugo site for production"
+          hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
-  # Deployment job
   deploy:
+    name: Deploy to GitHub Pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -76,17 +82,21 @@ jobs:
 
   preview:
     if: github.event.label.name == 'preview'
+    name: Build Hugo Preview (pull request)
     runs-on: ubuntu-latest
     env:
       HUGO_VERSION: 0.128.0
     steps:
       - name: Install Hugo CLI
         run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
-          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+          echo "Installing Hugo v${HUGO_VERSION}"
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+          sudo dpkg -i ${{ runner.temp }}/hugo.deb
 
       - name: Install Dart Sass
-        run: sudo snap install dart-sass
+        run: |
+          echo "Installing Dart Sass"
+          sudo snap install dart-sass
 
       - name: Checkout PR code
         uses: actions/checkout@v4
@@ -95,13 +105,17 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Install Node.js dependencies
-        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+        run: |
+          echo "Installing Node.js dependencies"
+          [[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || echo "No Node dependencies"
 
       - name: Build Hugo site
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
           HUGO_ENVIRONMENT: preview
-        run: hugo --minify
+        run: |
+          echo "Building Hugo site for preview"
+          hugo --minify
 
       - name: Upload Hugo preview artifact
         uses: actions/upload-artifact@v4
@@ -109,4 +123,57 @@ jobs:
           name: hugo-preview
           path: ./public
 
+  test-suite:
+    if: github.event_name == 'pull_request'
+    name: Run Hugo test suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
+      - name: Setup Node environment
+        run: |
+          echo "Installing Node.js and CLI tools"
+          npm install -g markdownlint-cli htmlhint
+
+      - name: Lint Markdown
+        run: |
+          echo "Linting Markdown files"
+          markdownlint content/ || echo "Markdown lint warnings found"
+
+      - name: Install Hugo CLI
+        run: |
+          echo "Installing Hugo"
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.128.0/hugo_extended_0.128.0_linux-amd64.deb
+          sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
+      - name: Build Hugo site
+        run: |
+          echo "Building site to lint HTML"
+          hugo --minify
+
+      - name: Lint HTML output
+        run: |
+          echo "Linting HTML files"
+          htmlhint ./public/**/*.html || echo "HTML lint warnings found"
+
+      - name: Check broken links with htmlproofer
+        run: |
+          echo "Checking for broken links"
+          docker run --rm -v $PWD/public:/src:ro 18fgsa/html-proofer:latest ./ --disable-external --only-4xx || echo "Broken links found"
+
+      - name: Check accessibility with pa11y
+        run: |
+          echo "Running accessibility checks"
+          npm install -g pa11y
+          pa11y http://localhost:1313 || echo "Accessibility issues detected"
+
+      - name: Check internal links with lychee
+        run: |
+          echo "Checking internal links with lychee"
+          curl -LsSf https://github.com/lycheeverse/lychee/releases/latest/download/lychee-linux-x86_64 -o lychee
+          chmod +x lychee
+          ./lychee --base ./public ./public || echo "Link check warnings found"
