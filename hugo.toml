@@ -1,15 +1,35 @@
 baseURL = "https://Clotildelevou.github.io/mon-blog/"
 languageCode = "en-us"
 title = "Clou's Blog"
-theme = "diary"
+theme = "anatole"
 
 
 [params]
   subtitle = "My personal tech blog"
+  author = "Clotilde Levesque"
   mainSections = ["post"]
-  logo = "img/avatar.png"
+  profilePicture = "img/avatar.png"
   favicon = "img/favicon.ico"
   rss = true
+  description = """
+Tech enthusiast
+Blogging from Paris
+"""
+
+[[params.socialIcons]]
+icon = "fas fa-envelope"
+title = "e-mail"
+url = "mailto:clotilde.levesque@outlook.com"
+
+[[params.socialIcons]]
+icon = "fab fa-github"
+title = "github"
+url = "https://github.com/Clotildelevou"
+
+[[params.socialIcons]]
+icon = "fas fa-file"
+title = "resume"
+url = "files/CV_Clotilde_Levesque.pdf"
 
 # Main menu
 [[menu.main]]
