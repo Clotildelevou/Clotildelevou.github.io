@@ -1,7 +1,7 @@
 baseURL = "https://Clotildelevou.github.io/mon-blog/"
 languageCode = "en-us"
 title = "Clou's Blog"
-theme = "diary"
+theme = "anatole"
 
 
 [params]
